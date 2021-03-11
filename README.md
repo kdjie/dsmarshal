@@ -73,119 +73,119 @@ g++ -o test test.cpp -Idsmarshal库所在目录
 
 ### 主要类及方法：
 
-###### DSPackBuffer
+#### DSPackBuffer
 本类为序列化压包缓冲区，内部实现为按块自动分配内存，每块的大小默认为4K。
 
-主要方法：
-char * data();
+##### 主要方法：
+char * data(); <br>
 返回缓冲区指针。
 
-size_t size() const;
+size_t size() const; <br>
 返回缓冲区数据长度。
 
-void reserve(size_t nSize);
+void reserve(size_t nSize); <br>
 扩充内部容量为指定大小。
 
-void resize(size_t nSize);
+void resize(size_t nSize); <br>
 扩充或改变缓冲区数据长度为指定大小。
 
-void append(const char * pData, size_t nSize);
+void append(const char * pData, size_t nSize); <br>
 向缓冲区尾部插入指定长度的数据。
 
-void append(const char * pData);
+void append(const char * pData); <br>
 向缓冲区尾部插入以C风格结尾的数据。
 
-void replace(size_t nPos, const char * pData, size_t nSize);
+void replace(size_t nPos, const char * pData, size_t nSize); <br>
 替换缓冲区指定位置、指定长度的内存。
 
-###### DSPack
+#### DSPack
 本类为序列化压包操作实现，但是自己不管理缓冲区，需要在定义时指定DSPackBuffer缓冲区对象。
 
-主要方法：
-DSPack(DSPackBuffer & pb, size_t off = 0);
+##### 主要方法：
+DSPack(DSPackBuffer & pb, size_t off = 0); <br>
 定义序列化压包操作对象。
 
-char * data();
+char * data(); <br>
 返回本对象指向的缓冲区数据指针。
 
-size_t size();
+size_t size(); <br>
 返回本对象指向的缓冲区数据长度。
 
-DSPack & push(const void * pData, size_t nSize);
+DSPack & push(const void * pData, size_t nSize); <br>
 向本对象指向的缓冲区压入指定长度的数据。
 
-DSPack & push(const void * pData);
+DSPack & push(const void * pData); <br>
 向本对象指向的缓冲区压入以C风格结尾的数据。
 
-DSPack & push_uint8(uint8_t u8);
-DSPack & push_uint16(uint16_t u16);
-DSPack & push_uint32(uint32_t u32);
-DSPack & push_uint64(uint64_t u64);
+DSPack & push_uint8(uint8_t u8); <br>
+DSPack & push_uint16(uint16_t u16); <br>
+DSPack & push_uint32(uint32_t u32); <br>
+DSPack & push_uint64(uint64_t u64); <br>
 向本对象指向的缓冲区压入不同类型的整型数据。
 
-DSPack & push_string(const void * pData, size_t nSize);
+DSPack & push_string(const void * pData, size_t nSize); <br>
 向本对象指向的缓冲区压入定长度的字符串，但限制最大长度为64K。
 
-DSPack & push_string32(const void * pData, size_t nSize);
+DSPack & push_string32(const void * pData, size_t nSize); <br>
 向本对象指向的缓冲区压入指定长度的字符串，但限制最大长度为0xFFFFFF。
 
-DSPack & push_string(const void * pData);
+DSPack & push_string(const void * pData); <br>
 向本对象指向的缓冲区压入以C风格结尾的字符串，但限制最大长度为64K。
 
-DSPack & push_string(const std::string & str);
+DSPack & push_string(const std::string & str); <br>
 向本对象指向的缓冲区压入std::string的字符串，但限制最大长度为64K。
 
-###### DSUnpack
+#### DSUnpack
 本类为反序列化解包操作实现，需要在定义时给定一段缓存区。
 
-主要方法：
-DSUnpack(const void * pData, size_t nSize);
+##### 主要方法：
+DSUnpack(const void * pData, size_t nSize); <br>
 定义反序列化解包操作对象。
 
-void reset(const void * pData, size_t nSize) const;
+void reset(const void * pData, size_t nSize) const; <br>
 重置解包缓存区。
 
-const char * data();
+const char * data(); <br>
 返回待解包的缓存区地址。
 
-size_t size() const;
+size_t size() const; <br>
 返回待解包的缓存区长度。
 
-bool empty() const;
+bool empty() const; <br>
 检查待解包的数据长度是否为空。
 
-void finish() const;
+void finish() const; <br>
 检查是否完成解包。
 
-uint8_t pop_uint8(bool bPeek = false) const;
-uint16_t pop_uint16(bool bPeek = false) const;
-uint32_t pop_uint32(bool bPeek = false) const;
-uint64_t pop_uint64(bool bPeek = false) const;
+uint8_t pop_uint8(bool bPeek = false) const; <br>
+uint16_t pop_uint16(bool bPeek = false) const; <br>
+uint32_t pop_uint32(bool bPeek = false) const; <br>
+uint64_t pop_uint64(bool bPeek = false) const; <br>
 从缓冲区解出指定类型的整数，如果bPeek为true，表示仅查看。
 
-const char * pop_fetch_ptr(size_t nSize) const;
+const char * pop_fetch_ptr(size_t nSize) const; <br>
 从缓冲区解出指定长度的数据。
 
-std::string pop_fetch_string(size_t nSize) const;
+std::string pop_fetch_string(size_t nSize) const; <br>
 从缓冲区解出指定长度的字符串。
 
-std::string pop_string() const;
+std::string pop_string() const; <br>
 从缓冲区解出以push_string()方式压入的字符串。
 
-std::string pop_string32() const;
+std::string pop_string32() const; <br>
 从缓冲区解出以push_string32()方式压入的字符串。
 
-###### Marshallable
+#### Marshallable
 本类为抽像基类，主要定义了序列化与反序列化的方法。
 
-主要方法：
-virtual void marshal(DSPack &) const = 0;
+##### 主要方法：
+virtual void marshal(DSPack &) const = 0; <br>
 virtual void unmarshal(const DSUnpack &) = 0;
 
 ###### Marshallable对象序列化与反序列化
-定义了两个方法：
-inline void Object2String(const Marshallable & obj, std::string & str);
+定义了两个方法：<br>
+inline void Object2String(const Marshallable & obj, std::string & str); <br>
 将对象序列化为字符串流。
 
-inline bool String2Object(const std::string & str, Marshallable & obj);
+inline bool String2Object(const std::string & str, Marshallable & obj); <br>
 从字序串流反序列化对象。
