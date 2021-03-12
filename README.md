@@ -1,5 +1,5 @@
 # dsmarshal
-一个跨平台的结构体对象序列化与反序列化实现，且源码为HeaderOnly方式，方便朋友们使用。
+一个跨平台的C++结构体对象序列化与反序列化实现，且源码为HeaderOnly方式，方便朋友们使用。
 
 ### 例子：
 ```
@@ -163,8 +163,8 @@ uint32_t pop_uint32(bool bPeek = false) const; <br>
 uint64_t pop_uint64(bool bPeek = false) const; <br>
 从缓冲区解出指定类型的整数，如果bPeek为true，表示仅查看。
 
-const char * pop_fetch_ptr(size_t nSize) const; <br>
-从缓冲区解出指定长度的数据。
+const char * pop_fetch_ptr(size_t nSize, bool bPeek = false) const; <br>
+从缓冲区解出指定长度的数据，如果bPeek为true，表示仅查看。
 
 std::string pop_fetch_string(size_t nSize) const; <br>
 从缓冲区解出指定长度的字符串。
