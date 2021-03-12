@@ -281,15 +281,18 @@ public:
         return u64;
     }
 
-    const char * pop_fetch_ptr(size_t nSize) const
+    const char * pop_fetch_ptr(size_t nSize, bool bPeek = false) const
     {
         if (m_nSize < nSize)
             throw DSError("[DSUnpack::pop_fetch_ptr] not enough data");
 
         const char * pData = m_pData;
 
-        m_pData += nSize;
-        m_nSize -= nSize;
+        if (!bPeek)
+        {
+            m_pData += nSize;
+            m_nSize -= nSize;
+        }
 
         return pData;
     }
@@ -487,7 +490,7 @@ inline void unmarshal_container(const DSUnpack & up, OutputIterator i)
     }
 }
 
-template < typename OutputContainer>
+template < typename OutputContainer >
 inline void unmarshal_container2(const DSUnpack & p, OutputContainer & c)
 {
     for (uint32_t count = p.pop_uint32(); count > 0; --count)
@@ -499,14 +502,14 @@ inline void unmarshal_container2(const DSUnpack & p, OutputContainer & c)
 }
 
 template <class T1, class T2>
-inline DSPack& operator << (DSPack & p, const std::pair<T1, T2> & pair)
+inline DSPack & operator << (DSPack & p, const std::pair<T1, T2> & pair)
 {
     p << pair.first << pair.second;
     return p;
 }
 
 template <class T1, class T2>
-inline const DSUnpack& operator >> (const DSUnpack & up, std::pair<const T1, T2> & pair)
+inline const DSUnpack & operator >> (const DSUnpack & up, std::pair<const T1, T2> & pair)
 {
     const T1 & m = pair.first;
     T1 & m2 = const_cast<T1 &>(m);
@@ -515,49 +518,49 @@ inline const DSUnpack& operator >> (const DSUnpack & up, std::pair<const T1, T2>
 }
 
 template <class T1, class T2>
-inline const DSUnpack& operator >> (const DSUnpack& up, std::pair<T1, T2>& pair)
+inline const DSUnpack & operator >> (const DSUnpack & up, std::pair<T1, T2> & pair)
 {
     up >> pair.first >> pair.second;
     return up;
 }
 
 template <class T>
-inline DSPack& operator << (DSPack& p, const std::vector<T>& vec)
+inline DSPack & operator << (DSPack & p, const std::vector<T> & vec)
 {
     marshal_container(p, vec);
     return p;
 }
 
 template <class T>
-inline const DSUnpack& operator >> (const DSUnpack& up, std::vector<T>& vec)
+inline const DSUnpack & operator >> (const DSUnpack & up, std::vector<T> & vec)
 {
     unmarshal_container(up, std::back_inserter(vec));
     return up;
 }
 
 template <class T>
-inline DSPack& operator << (DSPack& p, const std::set<T>& set)
+inline DSPack & operator << (DSPack & p, const std::set<T> & set)
 {
     marshal_container(p, set);
     return p;
 }
 
 template <class T>
-inline const DSUnpack& operator >> (const DSUnpack& up, std::set<T>& set)
+inline const DSUnpack & operator >> (const DSUnpack & up, std::set<T> & set)
 {
     unmarshal_container(up, std::inserter(set, set.begin()));
     return up;
 }
 
 template <class T1, class T2>
-inline DSPack& operator << (DSPack& p, const std::map<T1, T2>& map)
+inline DSPack & operator << (DSPack & p, const std::map<T1, T2> & map)
 {
     marshal_container(p, map);
     return p;
 }
 
 template <class T1, class T2>
-inline const DSUnpack& operator >> (const DSUnpack& up, std::map<T1, T2>& map)
+inline const DSUnpack & operator >> (const DSUnpack & up, std::map<T1, T2> & map)
 {
     unmarshal_container(up, std::inserter(map, map.begin()));
     return up;
