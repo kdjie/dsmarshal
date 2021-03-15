@@ -92,9 +92,6 @@ void resize(size_t nSize); <br>
 void append(const char * pData, size_t nSize); <br>
 向缓冲区尾部插入指定长度的数据。
 
-void append(const char * pData); <br>
-向缓冲区尾部插入以C风格结尾的数据。
-
 void replace(size_t nPos, const char * pData, size_t nSize); <br>
 替换缓冲区指定位置、指定长度的内存。
 
@@ -105,7 +102,7 @@ void replace(size_t nPos, const char * pData, size_t nSize); <br>
 DSPack(DSPackBuffer & pb, size_t off = 0); <br>
 定义序列化压包操作对象。
 
-char * data(); <br>
+const char * data() const; <br>
 返回本对象指向的缓冲区数据指针。
 
 size_t size(); <br>
@@ -113,9 +110,6 @@ size_t size(); <br>
 
 DSPack & push(const void * pData, size_t nSize); <br>
 向本对象指向的缓冲区压入指定长度的数据。
-
-DSPack & push(const void * pData); <br>
-向本对象指向的缓冲区压入以C风格结尾的数据。
 
 DSPack & push_uint8(uint8_t u8); <br>
 DSPack & push_uint16(uint16_t u16); <br>
@@ -128,9 +122,6 @@ DSPack & push_string(const void * pData, size_t nSize); <br>
 
 DSPack & push_string32(const void * pData, size_t nSize); <br>
 向本对象指向的缓冲区压入指定长度的字符串，但限制最大长度为0xFFFFFF。
-
-DSPack & push_string(const void * pData); <br>
-向本对象指向的缓冲区压入以C风格结尾的字符串，但限制最大长度为64K。
 
 DSPack & push_string(const std::string & str); <br>
 向本对象指向的缓冲区压入std::string的字符串，但限制最大长度为64K。
@@ -145,7 +136,7 @@ DSUnpack(const void * pData, size_t nSize); <br>
 void reset(const void * pData, size_t nSize) const; <br>
 重置解包缓存区。
 
-const char * data(); <br>
+const char * data() const; <br>
 返回待解包的缓存区地址。
 
 size_t size() const; <br>
@@ -157,17 +148,14 @@ bool empty() const; <br>
 void finish() const; <br>
 检查是否完成解包。
 
+const char * pop_fetch_ptr(size_t nSize, bool bPeek = false) const; <br>
+从缓冲区解出指定长度的数据，如果bPeek为true，表示仅查看。
+
 uint8_t pop_uint8(bool bPeek = false) const; <br>
 uint16_t pop_uint16(bool bPeek = false) const; <br>
 uint32_t pop_uint32(bool bPeek = false) const; <br>
 uint64_t pop_uint64(bool bPeek = false) const; <br>
 从缓冲区解出指定类型的整数，如果bPeek为true，表示仅查看。
-
-const char * pop_fetch_ptr(size_t nSize, bool bPeek = false) const; <br>
-从缓冲区解出指定长度的数据，如果bPeek为true，表示仅查看。
-
-std::string pop_fetch_string(size_t nSize) const; <br>
-从缓冲区解出指定长度的字符串。
 
 std::string pop_string() const; <br>
 从缓冲区解出以push_string()方式压入的字符串。

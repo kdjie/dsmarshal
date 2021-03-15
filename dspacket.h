@@ -83,11 +83,6 @@ public:
         throw DSError("[DSPackBuffer::append] append buffer overflow");
     }
 
-    void append(const char * pData)
-    {
-        append(pData, ::strlen(pData));
-    }
-
     void replace(size_t nPos, const char * pData, size_t nSize)
     {
         if (m_buffer.replace(nPos, pData, nSize))
@@ -120,12 +115,14 @@ public:
     }
     virtual ~DSPack() {}
 
-    char * data() { return m_buffer.data() + m_offset; }
     const char * data() const { return m_buffer.data() + m_offset; }
     size_t size() const { return m_buffer.size() - m_offset; }
 
-    DSPack & push(const void * pData, size_t nSize) { m_buffer.append((const char *)pData, nSize); return *this; }
-    DSPack & push(const void * pData) { m_buffer.append((const char *)pData); return *this; }
+    DSPack & push(const void * pData, size_t nSize)
+    {
+        m_buffer.append((const char *)pData, nSize);
+        return *this;
+    }
 
     DSPack & push_uint8(uint8_t u8) { return push(&u8, 1); }
     DSPack & push_uint16(uint16_t u16) { u16 = xhtons(u16); return push(&u16, 2); }
@@ -143,34 +140,21 @@ public:
         return push_uint32(uint32_t(nSize)).push(pData, nSize);
     }
 
-    DSPack & push_string(const void * pData) { return push_string(pData, ::strlen((const char *)pData)); }
     DSPack & push_string(const std::string & str) { return push_string(str.data(), str.size()); }
     DSPack & push_string(const StringPtr & SP) { return push_string(SP.data(), SP.size()); }
 
-    size_t replace(size_t nPos, const void * pData, size_t nSize)
+    DSPack & replace(size_t nPos, const void * pData, size_t nSize)
     {
         m_buffer.replace(nPos, (const char*)pData, nSize);
-        return nPos + nSize;
+        return *this;
     }
-    size_t replace_uint8(size_t nPos, uint8_t u8)
-    {
-        return replace(nPos, &u8, 1);
-    }
-    size_t replace_uint16(size_t nPos, uint16_t u16)
-    {
-        u16 = xhtons(u16);
-        return replace(nPos, &u16, 2);
-    }
-    size_t replace_uint32(size_t nPos, uint32_t u32)
-    {
-        u32 = xhtonl(u32);
-        return replace(nPos, &u32, 4);
-    }
-    size_t replace_uint64(size_t nPos, uint32_t u64)
-    {
-        u64 = xhtonll(u64);
-        return replace(nPos, &u64, 8);
-    }
+
+    DSPack & replace_uint8(size_t nPos, uint8_t u8) { return replace(nPos, &u8, 1); }
+    DSPack & replace_uint16(size_t nPos, uint8_t u16) { u16 = xhtons(u16); return replace(nPos, &u16, 2); }
+    DSPack & replace_uint32(size_t nPos, uint8_t u32) { u32 = xhtonl(u32); return replace(nPos, &u32, 4); }
+    DSPack & replace_uint64(size_t nPos, uint8_t u64) { u64 = xhtonll(u64); return replace(nPos, &u64, 8); }
+    DSPack & replace_string(size_t nPos, const void * pData, size_t nSize) { return replace_uint16(nPos, uint16_t(nSize)).replace(nPos + 2, pData, nSize); }
+    DSPack & replace_string32(size_t nPos, const void * pData, size_t nSize) { return replace_uint32(nPos, uint32_t(nSize)).replace(nPos + 4, pData, nSize); }
 };
 
 // 定义反序列化操作类
@@ -194,6 +178,9 @@ public:
         reset(NULL, 0);
     }
 
+    operator const void *() const { return m_pData; }
+    bool operator!() const { return (NULL == m_pData); }
+
     void reset(const void * pData, size_t nSize) const
     {
         m_pData = (const char *)pData;
@@ -205,80 +192,10 @@ public:
 
     bool empty() const	  { return size() == 0; }
 
-    operator const void *() const { return m_pData; }
-    bool operator!() const { return (NULL == m_pData); }
-
     void finish() const
     {
         if (!empty())
             throw DSError("[DSUnpack::finish] too much data");
-    }
-
-    uint8_t pop_uint8(bool bPeek = false) const
-    {
-        if (m_nSize < 1u)
-            throw DSError("[DSUnpack::pop_uint8] not enough data");
-
-        uint8_t u8 = *((uint8_t*)m_pData);
-
-        if (!bPeek)
-        {
-            m_pData += 1u;
-            m_nSize -= 1u;
-        }
-
-        return u8;
-    }
-
-    uint16_t pop_uint16(bool bPeek = false) const
-    {
-        if (m_nSize < 2u)
-            throw DSError("[DSUnpack::pop_uint16] not enough data");
-
-        uint16_t u16 = *((uint16_t*)m_pData);
-        u16 = xntohs(u16);
-
-        if (!bPeek)
-        {
-            m_pData += 2u;
-            m_nSize -= 2u;
-        }
-
-        return u16;
-    }
-
-    uint32_t pop_uint32(bool bPeek = false) const
-    {
-        if (m_nSize < 4u)
-            throw DSError("[DSUnpack::pop_uint32] not enough data");
-
-        uint32_t u32 = *((uint32_t*)m_pData);
-        u32 = xntohl(u32);
-
-        if (!bPeek)
-        {
-            m_pData += 4u;
-            m_nSize -= 4u;
-        }
-
-        return u32;
-    }
-
-    uint64_t pop_uint64(bool bPeek = false) const
-    {
-        if (m_nSize < 8u)
-            throw DSError("[DSUnpack::pop_uint64] not enough data");
-
-        uint64_t u64 = *((uint64_t*)m_pData);
-        u64 = xntohll(u64);
-
-        if (!bPeek)
-        {
-            m_pData += 8u;
-            m_nSize -= 8u;
-        }
-
-        return u64;
     }
 
     const char * pop_fetch_ptr(size_t nSize, bool bPeek = false) const
@@ -297,9 +214,20 @@ public:
         return pData;
     }
 
-    std::string pop_fetch_string(size_t nSize) const
+    uint8_t pop_uint8(bool bPeek = false) const { return *(uint8_t*)pop_fetch_ptr(1, bPeek); }
+    uint16_t pop_uint16(bool bPeek = false) const { uint16_t u16 = *(uint16_t*)pop_fetch_ptr(2, bPeek); return xntohs(u16); }
+    uint32_t pop_uint32(bool bPeek = false) const { uint32_t u32 = *(uint32_t*)pop_fetch_ptr(4, bPeek); return xntohl(u32); }
+    uint64_t pop_uint64(bool bPeek = false) const { uint64_t u64 = *(uint64_t*)pop_fetch_ptr(8, bPeek); return xntohll(u64); }
+
+    const char * pop_string(size_t & nSize) const
     {
-        return std::string(pop_fetch_ptr(nSize), nSize);
+        nSize = pop_uint16();
+        return pop_fetch_ptr(nSize);
+    }
+    const char * pop_string32(size_t & nSize) const
+    {
+        nSize = pop_uint32();
+        return pop_fetch_ptr(nSize);
     }
 
     std::string pop_string() const
@@ -618,6 +546,7 @@ inline bool String2Object(const std::string & str, Marshallable & obj)
 
     return true;
 }
+
 }
 
 #endif //__DSPACKET_H__
