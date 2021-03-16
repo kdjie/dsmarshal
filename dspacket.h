@@ -150,9 +150,9 @@ public:
     }
 
     DSPack & replace_uint8(size_t nPos, uint8_t u8) { return replace(nPos, &u8, 1); }
-    DSPack & replace_uint16(size_t nPos, uint8_t u16) { u16 = xhtons(u16); return replace(nPos, &u16, 2); }
-    DSPack & replace_uint32(size_t nPos, uint8_t u32) { u32 = xhtonl(u32); return replace(nPos, &u32, 4); }
-    DSPack & replace_uint64(size_t nPos, uint8_t u64) { u64 = xhtonll(u64); return replace(nPos, &u64, 8); }
+    DSPack & replace_uint16(size_t nPos, uint16_t u16) { u16 = xhtons(u16); return replace(nPos, &u16, 2); }
+    DSPack & replace_uint32(size_t nPos, uint32_t u32) { u32 = xhtonl(u32); return replace(nPos, &u32, 4); }
+    DSPack & replace_uint64(size_t nPos, uint64_t u64) { u64 = xhtonll(u64); return replace(nPos, &u64, 8); }
     DSPack & replace_string(size_t nPos, const void * pData, size_t nSize) { return replace_uint16(nPos, uint16_t(nSize)).replace(nPos + 2, pData, nSize); }
     DSPack & replace_string32(size_t nPos, const void * pData, size_t nSize) { return replace_uint32(nPos, uint32_t(nSize)).replace(nPos + 4, pData, nSize); }
 };

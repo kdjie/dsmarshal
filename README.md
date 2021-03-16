@@ -1,10 +1,12 @@
 # dsmarshal
 一个跨平台的C++结构体对象序列化与反序列化实现，且源码为HeaderOnly方式，方便朋友们使用。
 
-### 例子：
+### 例子1：
 ```
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+#include <vector>
 
 // 引用头文件
 #include <dsmarshal/dspacket.h>
@@ -69,7 +71,45 @@ int main(int argc, char* argv[])
 ```
 
 ###### 编译：
-g++ -o test test.cpp -Idsmarshal库所在目录
+g++ -o test1 test1.cpp -Idsmarshal库所在目录
+
+### 例子2：
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <vector>
+
+// 引用头文件
+#include <dsmarshal/dspacket.h>
+
+int main(int argc, char* argv[])
+{
+    using namespace dakuang;
+
+    std::string strName = "abc123";
+    int nAge = 20;
+    std::vector<std::string> vecBooks;
+    vecBooks.push_back("a");
+    vecBooks.push_back("b");
+    vecBooks.push_back("c");
+
+    DSPack pack;
+    pack << strName << nAge << vecBooks;
+
+    DSUnpack unpack(pack.data(), pack.size());
+
+    std::string strName2;
+    int nAge2;
+    std::vector<std::string> vecBooks2;
+    unpack >> strName2 >> nAge2 >> vecBooks2;
+
+    return 0;
+}
+```
+
+###### 编译：
+g++ -o test2 test2.cpp -Idsmarshal库所在目录
 
 ### 主要类及方法：
 
@@ -177,3 +217,8 @@ inline void Object2String(const Marshallable & obj, std::string & str); <br>
 
 inline bool String2Object(const std::string & str, Marshallable & obj); <br>
 从字序串流反序列化对象。
+
+### 基于std::string更轻量级的实现
+
+在本开源目录simplemarshal下有个simplemarshal.h，它采用std::string做为压包缓冲，从形式上更加轻量，也更稳定。<br>
+除了相关的类名称不一样，在用法上跟DS是相同的。使用时，请将simplemarshal.h拷贝到工程目录下，并将其include引入。<br>
