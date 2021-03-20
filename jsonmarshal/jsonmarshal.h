@@ -7,7 +7,8 @@
 #include <json/json.h>
 #include <string>
 #include <vector>
-#include <typeinfo>
+#include <set>
+#include <map>
 
 namespace dakuang
 {
@@ -129,44 +130,59 @@ inline const Json::Value & operator >> (const Json::Value & js, std::vector<T> &
 {
     for (size_t i = 0; i < js.size(); ++i)
     {
-        if (typeid (T) == typeid(bool) )
-        {
-            bool t = (bool)js[i].asBool();
-            vec.push_back(t);
-        }
-        else if (typeid (T) == typeid(uint8_t)
-                || typeid (T) == typeid(uint16_t)
-                || typeid (T) == typeid(uint32_t)
-                || typeid (T) == typeid(unsigned int) )
-        {
-            T t = (T)js[i].asUInt();
-            vec.push_back(t);
-        }
-        else if (typeid (T) == typeid(int8_t)
-                 || typeid (T) == typeid(int16_t)
-                 || typeid (T) == typeid(int32_t)
-                 || typeid (T) == typeid(int) )
-        {
-            T t = (T)js[i].asInt();
-            vec.push_back(t);
-        }
-//        else if (typeid (T) == typeid(std::string) )
-//        {
-//            T t = (T)js[i].asString();
-//            vec.push_back(t);
-//        }
+        T t;
+        js[i] >> t;
+        vec.push_back(t);
     }
-
     return js;
 }
 
-template <>
-inline const Json::Value & operator >> (const Json::Value & js, std::vector<std::string> & vec)
+template <typename T>
+inline Json::Value & operator << (Json::Value & js, const std::set<T> & set)
+{
+    for (typename std::set<T>::const_iterator i = set.begin(); i != set.end(); ++i)
+    {
+        Json::Value jsItem;
+        jsItem << (*i);
+        js.append(jsItem);
+    }
+    return js;
+}
+
+template <typename T>
+inline const Json::Value & operator >> (const Json::Value & js, std::set<T> & set)
 {
     for (size_t i = 0; i < js.size(); ++i)
     {
-        vec.push_back( js[i].asString() );
+        T t;
+        js[i] >> t;
+        set.push_back(t);
     }
+    return js;
+}
+
+template <typename T>
+inline Json::Value & operator << (Json::Value & js, const std::map<std::string, T> & map)
+{
+    for (typename std::map<std::string, T>::const_iterator i = map.begin(); i != map.end(); ++i)
+    {
+        js[i->first] << i->second;
+    }
+    return js;
+}
+
+template <typename T>
+inline const Json::Value & operator >> (const Json::Value & js, std::map<std::string, T> & map)
+{
+    Json::Value::Members members = js.getMemberNames();
+    for (Json::Value::Members::const_iterator i = members.begin(); i != members.end(); ++i)
+    {
+        std::string strKey = (*i);
+        T t;
+        js[strKey] >> t;
+        map[strKey] = t;
+    }
+    return js;
 }
 
 // 结构类型的序列化与反序列化 =>
