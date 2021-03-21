@@ -222,3 +222,63 @@ inline bool String2Object(const std::string & str, Marshallable & obj); <br>
 
 在本开源目录simplemarshal下有个simplemarshal.h，它采用std::string做为压包缓冲，从形式上更加轻量，也更稳定。<br>
 除了相关的类名称不一样，在用法上跟DS是相同的。使用时，请将simplemarshal.h拷贝到工程目录下，并将其include引入。<br>
+
+### C++中结构体与Json字符串互转
+
+参考DSMarshal序列化的思想，让结构体自己管理成员的插入与提取，请看下面的做法：
+```
+    struct SPerson
+            : public dakuang::JsonMarshallable
+    {
+        std::string strName;
+        int nAge;
+        bool bMale;
+        std::vector<std::string> vecFriend;
+        std::vector<int> vecOther;
+
+        virtual void marshal(Json::Value & js) const
+        {
+            using namespace dakuang;
+            js["name"] << strName;
+            js["age"] << nAge;
+            js["male"] << bMale;
+            js["friends"] << vecFriend;
+            js["others"] << vecOther;
+        }
+        virtual void unmarshal(const Json::Value & js)
+        {
+            using namespace dakuang;
+            js["name"] >> strName;
+            js["age"] >> nAge;
+            js["male"] >> bMale;
+            js["friends"] >> vecFriend;
+            js["others"] >> vecOther;
+        }
+    };
+
+    SPerson person1;
+    person1.strName = "abc123";
+    person1.nAge = 20;
+    person1.bMale = true;
+    person1.vecFriend = {"a", "b", "c"};
+    person1.vecOther = {1, 2, 3};
+
+    Json::Value jsPerson1;
+    person1.marshal(jsPerson1);
+    std::string strPerson1 = jsPerson1.toStyledString();
+    qDebug("person1 => %s", strPerson1.c_str());
+
+    SPerson person2;
+    person2.unmarshal(jsPerson1);
+```
+上面代码输出：
+```
+person1 => {
+   "age" : 20,
+   "friends" : [ "a", "b", "c" ],
+   "male" : true,
+   "name" : "abc123",
+   "others" : [ 1, 2, 3 ]
+}
+```
+以上代码需要引入头文件/jsonmarshaljsonmarshal.h，实际还支持std::map std::set std::vector。
