@@ -260,7 +260,7 @@ inline bool String2Object(const std::string & str, Marshallable & obj); <br>
     person1.strName = "abc123";
     person1.nAge = 20;
     person1.bMale = true;
-    person1.vecFriend = {"a", "b", "c"};
+    person1.vecFriend = {"a", "b", "c"};  // 需要c++11支持
     person1.vecOther = {1, 2, 3};
 
     Json::Value jsPerson1;
@@ -281,4 +281,4 @@ person1 => {
    "others" : [ 1, 2, 3 ]
 }
 ```
-以上代码需要引入头文件/jsonmarshaljsonmarshal.h，实际还支持std::map std::set std::vector。
+以上代码需要引入头文件jsonmarshal/jsonmarshal.h，并且还支持std::map std::set std::vector。
