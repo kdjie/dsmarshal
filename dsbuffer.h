@@ -186,6 +186,7 @@ inline bool DSBuffer<BlockAllocator, MaxBlockCount >::erase(size_t nPos, size_t 
     {
         size_t nMoveSize = size() - (nPos + nSize);
         memcpy(m_pData + nPos, m_pData + nPos + nSize, nMoveSize);
+        m_nSize -= nSize;
     }
 
     // 释放空间
